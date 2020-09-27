@@ -25,14 +25,36 @@
             <watch-component></watch-component>
         </div>
         <div class="box">
-            <div class="title">9 Vue-router</div>
+            <props-component title="我是props传入标题"></props-component>   
+        </div> 
+        <div class="box">
+            <computed-component></computed-component>
+        </div>
+        <div class="box">
+            <div class="title">11 provide inject</div>
+            <div class="flex">provide readonly color: {{color}}</div>
+            <div class="flex">
+                <a-button type="primary" @click="color = 'red'">change red</a-button>
+                <a-button type="primary" @click="color = 'gray'">change gray</a-button>
+            </div>
+            <hr>
+            <provide-inject-component></provide-inject-component>
+        </div>
+        <div class="box">
+            <template-ref-component></template-ref-component>
+        </div>
+        <div class="box">
+            <next-tick-component></next-tick-component>
+        </div>
+        <div class="box">
+            <div class="title">99 Vue-router</div>
             <div class="flex">
                 <a-button type="primary" @click="handleRouter('user', {userid:1})">跳转user</a-button>
                 <!-- <a-button type="primary" @click="handleRouter">跳转book</a-button> -->
             </div> 
         </div>
         <div class="box">
-            <div class="title">10 Vuex</div>
+            <div class="title">100 Vuex</div>
             <div class="flex">
                 <div style="margin-right:20px;">count: {{count}}</div>
                 <div>countGetter: {{countGetter}}</div>
@@ -40,7 +62,7 @@
             <div class="flex">
                 <a-button type="primary" @click="increment">add ++</a-button>
                 <a-button type="primary" @click="decrement">mius --</a-button></div>
-        </div> 
+        </div>
     </div>
 </template>
 
@@ -51,38 +73,43 @@
     import ShallowReactiveComponent from '../../components/responsiveApis/ShallowReactiveComponent.vue'
     import ShallowReadonlyComponent from '../../components/responsiveApis/ShallowReadonlyComponent.vue'
     import RefsComponent from '../../components/responsiveApis/RefsComponent.vue'
-    import WatchComponent from '../../components/responsiveApis/WatchComponent.vue'
     import ShallowTriggerRefComponent from '../../components/responsiveApis/ShallowTriggerRefComponent.vue'
 
-    import { computed, onMounted, onUnmounted, onUpdated } from 'vue'
+    import WatchComponent from '../../components/baseApis/WatchComponent.vue'
+    import PropsComponent from '../../components/baseApis/PropsComponent.vue'
+    import ComputedComponent from '../../components/baseApis/ComputedComponent.vue'
+    import ProvideInjectComponent from '../../components/baseApis/ProvideInjectComponent.vue'
+
+    import TemplateRefComponent from '../../components/otherApis/TemplateRefComponent.vue'
+    import NextTickComponent from '../../components/otherApis/NextTickComponent.vue'
+
+    import { computed, onMounted, onUnmounted, onUpdated, provide, readonly, ref } from 'vue'
     import { useRouter } from 'vue-router'
     import { useStore } from 'vuex'
 
     export default {
         setup() {
-            console.log('this', this, 'setup 获取不到this实例')
+            console.log('1 setup...', this, 'setup 获取不到this实例')
             onMounted(() => {
-                console.log('onMounted....')
+                console.log('4 onMounted....')
             })
             onUpdated(() => {
-                console.log('onUpdated...')
+                console.log('5 onUpdated...')
             })
             onUnmounted(() => {
-                console.log('onUnmounted...')
+                console.log('6 onUnmounted...')
             })
 
+            // router
             const router = useRouter()
-            
             const handleRouter = (name, query) => {
                 router.push({name, query})
             }
 
+            // store
             const store = useStore()
-
             const count = computed(() => store.state.count.count)
-
             const countGetter = computed(() => store.getters['count/getCount'])
-
             const increment = () => {
                 store.commit('count/increment')
             }
@@ -90,13 +117,32 @@
                 store.commit('count/decrement')
             }
 
+            // provide
+            const color = ref('green')
+
+            const updateColor = val => {
+                color.value = val
+            }
+
+            provide('themeColor', readonly(color))
+            provide('themeColor2', color)
+            provide('updateColorFromInject', updateColor)
+
+
             return {
                 handleRouter,
                 count,
                 countGetter,
                 increment,
-                decrement
+                decrement,
+                color
             }
+        },
+        beforeCreate() {
+            console.log('2 beforeCreated..., this is not nedded')
+        },
+        created() {
+            console.log('3 created..., this is not nedded')
         },
         components: {
             RefComponent,
@@ -106,7 +152,12 @@
             ShallowReadonlyComponent,
             RefsComponent,
             WatchComponent,
-            ShallowTriggerRefComponent
+            ShallowTriggerRefComponent,
+            PropsComponent,
+            ComputedComponent,
+            ProvideInjectComponent,
+            TemplateRefComponent,
+            NextTickComponent
         },
     }
 </script>
